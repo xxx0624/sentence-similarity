@@ -27,6 +27,8 @@ class myParser(object):
 
 
 class myWordNet(object):
+	def __init__(self):
+		self.none_lcs = "NONE_LCS"
 
 	def logging_warning(self, content = ""):
 		if content == "":
@@ -51,7 +53,11 @@ class myWordNet(object):
 		self.logging_warning(content = word2)
 		word1_synsets = wn.synsets(word1)
 		word2_synsets = wn.synsets(word2)
-		return word1_synsets[0].lowest_common_hypernyms(word2_synsets[0])[0]
+		lcs = word1_synsets[0].lowest_common_hypernyms(word2_synsets[0])
+		if len(lcs) == 0:
+			return self.none_lcs
+		else:
+			return lcs[0]
 
 	#word1 = 'dogs'
 	#word2 = 'cats'
@@ -67,15 +73,26 @@ class Analysis(object):
 	def __init__(self):
 		self.alpha = 0.25
 		self.beta = 0.25
+		self.max_default = 10
 
 	#word1 = 'dogs'
 	#word2 = 'cats'
 	def cal_w1_w2_similar(self, word1, word2):
 		my_wordnet = myWordNet()
 		dis = my_wordnet.get_shortest_distance_from_wordnet(word1, word2)
+		if dis == None:
+			dis = self.max_default
 		lcs = my_wordnet.get_lcs_from_wordnet(word1, word2)
-		lcs_depth = lcs.min_depth()
-		ans = (mathe**(self.alpha*dis) - 1.0) / (mathe**(self.alpha*dis) + mathe**(self.beta*lcs_depth) - 2)
+		lcs_depth = 0
+		if isinstance(lcs, str):
+			lcs_depth = 0
+		else:
+			lcs_depth = lcs.min_depth()
+			#word1 = cats
+			#word2 = cat
+			if wn.synsets(word1)[0].lemma_names()[0] == wn.synsets(word2)[0].lemma_names()[0]:
+				lcs_depth = 1
+		ans = (mathe**(self.alpha*lcs_depth) - 1.0) / (mathe**(self.alpha*dis) + mathe**(self.beta*lcs_depth) - 2)
 		return ans
 
 	'''
@@ -160,11 +177,62 @@ class Analysis(object):
 		vector_2 = analysis.get_vector(tag_word_all, tag_word_2, tag_word_1)
 		return vector_1, vector_2
 
+class myMath(object):
+
+	def __init__(self):
+		self.eps = 1e-8
+	
+	def my_cos(self, v1, v2):
+		if len(v1) != len(v2):
+			logging.warning('the two vectors\' len are not the same!(return eps)')
+			return self.eps
+		up = 0
+		sum1 = 0
+		sum2 = 0
+		for i in range(len(v1)):
+			up += v1[i] * v2[i]
+			sum1 += v1[i]*v1[i]
+			sum2 += v2[i]*v2[i]
+		if sum1 * sum2 == 0:
+			logging.warning('the two vectors\' sum is 0!(reset to eps)')
+			sum1 = 1.0
+			sum2 = self.eps
+		#print 'up:', up, ' sum1:', sum1, ' sum2:', sum2
+		return up / (sum1*sum2)
+
+	def combine_3feature(self, feature1, feature2, feature3, a=0.45, b=0.35, c=0.20):
+		return a * feature1 + b * feature2 + c * feature3
+
+	def final_judge(self, score, threhold=0.4):
+		if score > threhold:
+			return True
+		else:
+			return False
+
+		
 
 if __name__ == '__main__':
 	sentence1 = 'this cats are very cute.'
-	sentence2 = 'i like these dogs.'
+	sentence2 = 'that cat is very beautiful.'
 	analysis = Analysis()
-	print analysis.get_2sentence_vector_tag(sentence1, sentence2, ['NN'])
-	print analysis.get_2sentence_vector_tag(sentence1, sentence2, ['JJ', 'RB'])
-	print analysis.get_2sentence_vector_tag(sentence1, sentence2, ['VB'])
+	#nn: object-specified
+	#jj rb: object-property
+	#vb: object-behavior
+	v_os_1, v_os_2 = analysis.get_2sentence_vector_tag(sentence1, sentence2, ['NN'])
+	print 'object-specified:', v_os_1, v_os_2
+	v_op_1, v_op_2 = analysis.get_2sentence_vector_tag(sentence1, sentence2, ['JJ', 'RB'])
+	print 'object-property:', v_op_1, v_op_2
+	v_ob_1, v_ob_2 = analysis.get_2sentence_vector_tag(sentence1, sentence2, ['VB'])
+	print 'object-behavior:', v_ob_1, v_ob_2
+
+	res = myMath()
+	#feature1
+	sim_os = res.my_cos(v_os_1, v_os_2)
+	#feature2
+	sim_op = res.my_cos(v_op_1, v_op_2)
+	#feature3
+	sim_ob = res.my_cos(v_ob_1, v_ob_2)
+	#overall feature
+	sim_overall = res.combine_3feature(sim_os, sim_op, sim_ob)
+
+	print sim_os, sim_op, sim_ob, sim_overall

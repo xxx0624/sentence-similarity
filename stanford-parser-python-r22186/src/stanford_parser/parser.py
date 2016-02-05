@@ -162,7 +162,7 @@ class Parser:
                           for token in tokens]
         posTags = [token.tag() for token in tree.taggedYield()]
         #print '\n'
-        print "the result is:\n" + "".join(["%s/%s" % (word.text, tag) for word, tag in zip(standoffTokens, posTags)])
+        #print "the result is:\n" + "".join(["%s/%s" % (word.text, tag) for word, tag in zip(standoffTokens, posTags)])
         #print '\n'
         #print tree.taggedYield().toString(False)
         result = self.package.trees.EnglishGrammaticalStructure(tree)
