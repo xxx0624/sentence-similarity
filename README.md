@@ -2,24 +2,12 @@
 
 ##install
 
-(refer to stanford-parser-python-r22186's README)
+1. install python, pip
+2. install jpype, nltk (download all data)
+3. modify file 'parser.py' 
+	stanford_parser_home = 'your file location'
 
-We developed a python interface to the Stanford Parser.  It uses JPype
-to create a Java virtual machine and convert between python and Java.
-Most of the code is about getting the Stanford Dependencies, but it's
-easy to add API to call any method on the parser.
-
-JPype is included; you can set compile it by running "rake setup" in
-3rdParty/jpype.  The Stanford Parser can be downloaded and installed
-by running "rake download; rake setup" in 3rdParty/stanford-parser".
-Otherwise set the environment variable STANFORD_PARSER_HOME to the
-location of the installed directory.  It loads the grammar file from
-the unzipped version, because the load is a few seconds faster.  If
-you haven't gunzipped the .ser file you will get an error.
-
-To see how to use it, look at parser_test.py.
-
-## the details
+## the algorithm details
 
 "sentence similarity" use the formation of 'objects-specified(NN)' and 'objects-property(JJ, RB)' and 'object-behavior(VB)'.
 
@@ -33,4 +21,4 @@ To see how to use it, look at parser_test.py.
 
 ## how to use
 
-please look at stanford-parser-python-r22186/src/stanford_parser/test_parser.py
+please look at stanford-parser-python-r22186/src/stanford_parser/my_main_parser.py

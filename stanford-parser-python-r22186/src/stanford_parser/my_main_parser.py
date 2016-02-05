@@ -212,11 +212,11 @@ class myMath(object):
 		#print 'up:', up, ' sum1:', sum1, ' sum2:', sum2
 		return up / (sum1*sum2)
 
-	def combine_3feature(self, feature1, feature2, feature3, a=0.60, b=0.20, c=0.20):
+	def combine_3feature(self, feature1, feature2, feature3, a, b, c):
 		return a * feature1 + b * feature2 + c * feature3
 
-	def final_judge(self, score, threhold=0.4):
-		if score > threhold:
+	def final_judge(self, score, threshold):
+		if score > threshold:
 			return True
 		else:
 			return False
@@ -226,7 +226,7 @@ def pre_solve(sentence):
 	return sentence.replace(unicode('’', 'utf-8'), '\'')
 
 
-def solve(sentence1, sentence2):
+def solve(sentence1, sentence2, a, b, c, threshold):
 	#sentence1 = 'this cats are very cute.'
 	#sentence2 = 'that cat is very beautiful.'
 	analysis = Analysis()
@@ -248,41 +248,43 @@ def solve(sentence1, sentence2):
 	#feature3
 	sim_ob = res.my_cos(v_ob_1, v_ob_2)
 	#overall feature
-	sim_overall = res.combine_3feature(sim_os, sim_op, sim_ob)
+	sim_overall = res.combine_3feature(sim_os, sim_op, sim_ob, a, b, c)
 	#print sim_os, sim_op, sim_ob, sim_overall
 
-	if res.final_judge(sim_overall, threhold=0.10):
+	if res.final_judge(sim_overall, threshold):
 		return "1"
 	else:
 		return "0"
 
 		
 
-if __name__ == '__main__':
+class main_parser(object):
 
-	yes_cnt = 0
-	all_cnt = 0
-	fopen = codecs.open('../../../Corpus/msr_paraphrase_train.txt', 'r')
-	try:
-		line = fopen.readline()
-		line = fopen.readline()
-		while line :
-			#start ...
-			print yes_cnt+1, '/', 1+all_cnt, ' = ', (yes_cnt+1)*1.0/(1+all_cnt)
-			parts = line.strip().split('	')
-			label = parts[0].strip()
-			#sentence1 = parts[3].strip()
-			sentence1 = 'Sixteen days later, as superheated air from the shuttle\'s reentry rushed into the damaged wing, "there was no possibility for crew survival,\" the board said.'
-			sentence1 = pre_solve(sentence1)
-			sentence2 = 'Sixteen days later, as superheated air from the shuttle’s re-entry rushed into the damaged wing, ‘‘there was no possibility for crew survival,’’ the board said.'
-			sentence2 = pre_solve(sentence2)
-			solve_label = solve(sentence1, sentence2)
-			if solve_label == label:
-				yes_cnt += 1
-			all_cnt += 1
-			#end...
+	def main_solve(self, a, b, c, threshold, file_name):
+		yes_cnt = 0
+		all_cnt = 0
+		fopen = codecs.open('../../../Corpus/'+file_name, 'r')
+		try:
 			line = fopen.readline()
-			#break
-	finally:
-		fopen.close()
-	
+			line = fopen.readline()
+			while line :
+				#start ...
+				print yes_cnt+1, '/', 1+all_cnt, ' = ', (yes_cnt+1)*1.0/(1+all_cnt)
+				parts = line.strip().split('	')
+				label = parts[0].strip()
+				sentence1 = parts[3].strip()
+				#sentence1 = 'Sixteen days later, as superheated air from the shuttle\'s reentry rushed into the damaged wing, "there was no possibility for crew survival,\" the board said.'
+				sentence1 = pre_solve(sentence1)
+				sentence2 = parts[4].strip()
+				#sentence2 = 'Sixteen days later, as superheated air from the shuttle’s re-entry rushed into the damaged wing, ‘‘there was no possibility for crew survival,’’ the board said.'
+				sentence2 = pre_solve(sentence2)
+				solve_label = solve(sentence1, sentence2, a, b, c, threshold)
+				if solve_label == label:
+					yes_cnt += 1
+				all_cnt += 1
+				#end...
+				line = fopen.readline()
+				#break
+		finally:
+			fopen.close()
+		
