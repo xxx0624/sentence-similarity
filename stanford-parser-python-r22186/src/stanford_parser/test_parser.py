@@ -1,8 +1,14 @@
+#coding:utf-8
+
 from __future__ import division
 from parser import Parser
 import logging
 from nltk.corpus import wordnet as wn
 from math import e as mathe
+import codecs, sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 class myParser(object):
@@ -29,6 +35,7 @@ class myParser(object):
 class myWordNet(object):
 	def __init__(self):
 		self.none_lcs = "NONE_LCS"
+		self.max_default = 10
 
 	def logging_warning(self, content = ""):
 		if content == "":
@@ -53,6 +60,8 @@ class myWordNet(object):
 		self.logging_warning(content = word2)
 		word1_synsets = wn.synsets(word1)
 		word2_synsets = wn.synsets(word2)
+		if len(word1_synsets) == 0 or len(word2_synsets) == 0:
+			return self.none_lcs
 		lcs = word1_synsets[0].lowest_common_hypernyms(word2_synsets[0])
 		if len(lcs) == 0:
 			return self.none_lcs
@@ -66,6 +75,9 @@ class myWordNet(object):
 		self.logging_warning(content = word2)
 		word1_synsets = wn.synsets(word1)
 		word2_synsets = wn.synsets(word2)
+		if len(word1_synsets) == 0 or len(word2_synsets) == 0:
+			dis = self.max_default
+			return dis
 		dis = word1_synsets[0].shortest_path_distance(word2_synsets[0])
 		return dis
 
@@ -200,7 +212,7 @@ class myMath(object):
 		#print 'up:', up, ' sum1:', sum1, ' sum2:', sum2
 		return up / (sum1*sum2)
 
-	def combine_3feature(self, feature1, feature2, feature3, a=0.45, b=0.35, c=0.20):
+	def combine_3feature(self, feature1, feature2, feature3, a=0.60, b=0.20, c=0.20):
 		return a * feature1 + b * feature2 + c * feature3
 
 	def final_judge(self, score, threhold=0.4):
@@ -209,21 +221,24 @@ class myMath(object):
 		else:
 			return False
 
-		
 
-if __name__ == '__main__':
-	sentence1 = 'this cats are very cute.'
-	sentence2 = 'that cat is very beautiful.'
+def pre_solve(sentence):
+	return sentence.replace(unicode('’', 'utf-8'), '\'')
+
+
+def solve(sentence1, sentence2):
+	#sentence1 = 'this cats are very cute.'
+	#sentence2 = 'that cat is very beautiful.'
 	analysis = Analysis()
 	#nn: object-specified
 	#jj rb: object-property
 	#vb: object-behavior
 	v_os_1, v_os_2 = analysis.get_2sentence_vector_tag(sentence1, sentence2, ['NN'])
-	print 'object-specified:', v_os_1, v_os_2
+	#print 'object-specified:', v_os_1, v_os_2
 	v_op_1, v_op_2 = analysis.get_2sentence_vector_tag(sentence1, sentence2, ['JJ', 'RB'])
-	print 'object-property:', v_op_1, v_op_2
+	#print 'object-property:', v_op_1, v_op_2
 	v_ob_1, v_ob_2 = analysis.get_2sentence_vector_tag(sentence1, sentence2, ['VB'])
-	print 'object-behavior:', v_ob_1, v_ob_2
+	#print 'object-behavior:', v_ob_1, v_ob_2
 
 	res = myMath()
 	#feature1
@@ -234,5 +249,40 @@ if __name__ == '__main__':
 	sim_ob = res.my_cos(v_ob_1, v_ob_2)
 	#overall feature
 	sim_overall = res.combine_3feature(sim_os, sim_op, sim_ob)
+	#print sim_os, sim_op, sim_ob, sim_overall
 
-	print sim_os, sim_op, sim_ob, sim_overall
+	if res.final_judge(sim_overall, threhold=0.10):
+		return "1"
+	else:
+		return "0"
+
+		
+
+if __name__ == '__main__':
+
+	yes_cnt = 0
+	all_cnt = 0
+	fopen = codecs.open('../../../Corpus/msr_paraphrase_train.txt', 'r')
+	try:
+		line = fopen.readline()
+		line = fopen.readline()
+		while line :
+			#start ...
+			print yes_cnt+1, '/', 1+all_cnt, ' = ', (yes_cnt+1)*1.0/(1+all_cnt)
+			parts = line.strip().split('	')
+			label = parts[0].strip()
+			#sentence1 = parts[3].strip()
+			sentence1 = 'Sixteen days later, as superheated air from the shuttle\'s reentry rushed into the damaged wing, "there was no possibility for crew survival,\" the board said.'
+			sentence1 = pre_solve(sentence1)
+			sentence2 = 'Sixteen days later, as superheated air from the shuttle’s re-entry rushed into the damaged wing, ‘‘there was no possibility for crew survival,’’ the board said.'
+			sentence2 = pre_solve(sentence2)
+			solve_label = solve(sentence1, sentence2)
+			if solve_label == label:
+				yes_cnt += 1
+			all_cnt += 1
+			#end...
+			line = fopen.readline()
+			#break
+	finally:
+		fopen.close()
+	
