@@ -1,5 +1,10 @@
 #sentence similarity's README
 
+##慎读 
+the second algorithm思想来自水论文。 LSA瞬秒之。
+不过可以用来处理sentence similarity
+:)
+
 ##how to get the similarity
 (based on the special Corpus (from msr para))
 1. get the first score, look at semantic-lsa/parser.py
