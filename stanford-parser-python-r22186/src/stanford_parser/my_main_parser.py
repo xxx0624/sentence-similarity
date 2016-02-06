@@ -263,6 +263,7 @@ class main_parser(object):
 	def main_solve(self, a, b, c, threshold, file_name):
 		yes_cnt = 0
 		all_cnt = 0
+		print 'a=', a, 'b=', b,'c=', c, 'threshold=', threshold
 		fopen = codecs.open('../../../Corpus/'+file_name, 'r')
 		try:
 			line = fopen.readline()
