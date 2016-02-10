@@ -1,16 +1,13 @@
 #sentence similarity's README
 
-##慎读 
-the second algorithm思想来自水论文。 LSA瞬秒之。
-不过可以用来处理sentence similarity
-:)
+##Tips：
+stanford-parser-python中的my_main_parser1来自水论文。 虽然LSA分分钟能秒杀它,但是还是可以用来处理sentence similarity:)
+you can adjust these parameters or you can combine the two scores
 
 ##how to get the similarity
 (based on the special Corpus (from msr para))
-1. get the first score, look at semantic-lsa/parser.py
-2. get the second score, look at my_main_parser.py
-
-Tips:you can adjust these parameters or you can combine the two scores
+1. get the first score, look at semantic-lsa/lsa_parser.py
+2. get the second score, look at my_main_parser1.py
 
 ##install
 
@@ -19,10 +16,10 @@ Tips:you can adjust these parameters or you can combine the two scores
 3. modify file 'parser.py' 
 	stanford_parser_home = 'your file location'
 
-## the first algorithm details
+## semantic-lsa/lsa_parser.py
 Based on LSA
 
-## the second algorithm details
+## stanfor-parser-python/src/stanford_parser/my_main_parser1.py
 
 "sentence similarity" use the formation of 'objects-specified(NN)' and 'objects-property(JJ, RB)' and 'object-behavior(VB)'.
 
@@ -35,5 +32,6 @@ Based on LSA
 3. set threshold and start testing......
 
 ## how to use
+look at readme
 
-please look at stanford-parser-python-r22186/src/stanford_parser/my_main_parser.py and semantic-lsa/parser.py
+#Thx
