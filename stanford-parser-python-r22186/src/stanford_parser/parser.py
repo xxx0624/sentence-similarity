@@ -78,7 +78,11 @@ def startJvm():
     import os
 
     global stanford_parser_home
+<<<<<<< HEAD
     stanford_parser_home = '/home/zhengxing/sentence-similarity/Data/stanford-parser-2010-08-20'
+=======
+    stanford_parser_home = '/root/xxx0624/stanford-parser/test_project/Data/stanford-parser-2010-08-20'
+>>>>>>> 9bb1cbbc65add14411e9a27d65862c2547014e1f
     #
     os.environ.setdefault("STANFORD_PARSER_HOME", "3rdParty/stanford-parser/stanford-parser-2010-08-20")
     #global stanford_parser_home
