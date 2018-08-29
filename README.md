@@ -1,15 +1,15 @@
-#sentence similarity's README
+# sentence similarity's README
 
-##Tips：
+## Tips：
 stanford-parser-python中的my_main_parser1来自水论文。 虽然LSA分分钟能秒杀它,但是还是可以用来处理sentence similarity:)
 you can adjust these parameters or you can combine the two scores
 
-##how to get the similarity
+## how to get the similarity
 (based on the special Corpus (from msr para))
 1. get the first score, look at semantic-lsa/lsa_parser.py
 2. get the second score, look at my_main_parser1.py
 
-##install
+## install
 
 1. install python, pip
 2. install jpype, nltk (download all data), gensim and so on...
@@ -34,4 +34,4 @@ Based on LSA
 ## how to use
 look at readme
 
-#Thx
+# Thx
